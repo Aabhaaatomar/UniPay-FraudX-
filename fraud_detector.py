@@ -245,7 +245,7 @@ def _build_explanation(tx, rules, ml_score, fraud_score, risk_level):
     return " ".join(parts)
 
 
-# ─── Dataset Info (for admin API) ────────────────────────────────────────────
+#  Dataset Info (for admin API)
 
 def get_dataset_info():
     return {
