@@ -22,7 +22,7 @@ def _require_admin():
 # ─────────────────────────────────────────────
 # POST /api/fraud/report
 # Report a transaction as fraudulent (manual)
-# ─────────────────────────────────────────────
+# ────────────────────────────────────────────
 @fraud_bp.route("/report", methods=["POST"])
 @jwt_required()
 def report_fraud():
