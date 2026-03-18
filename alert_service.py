@@ -25,7 +25,7 @@ def create_alert(user_id, transaction_ref, alert_type, message):
     # Real-time push via Socket.IO
     _push_socket_alert(user_id, alert)
 
-    # Email alert for high-severity types
+    # Email alert for high - severity types
     if alert_type in ("fraud_detected", "high_amount", "blocked"):
         _send_email_alert(user_id, alert)
 
