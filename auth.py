@@ -48,3 +48,35 @@ def register():
         "access_token": access_token,
         "refresh_token": refresh_token,
     }), 201
+
+
+# ─────────────────────────────────────────────
+# POST /api/auth/login
+# ─────────────────────────────────────────────
+@auth_bp.route("/login", methods=["POST"])
+def login():
+    data = request.get_json()
+    if not data:
+        return jsonify({"error": "No input data provided"}), 400
+
+    email = data.get("email", "").strip().lower()
+    password = data.get("password", "")
+
+    user = User.query.filter_by(email=email).first()
+    if not user or not user.check_password(password):
+        return jsonify({"error": "Invalid email or password"}), 401
+
+    if not user.is_active:
+        return jsonify({"error": "Account is deactivated"}), 403
+
+    access_token = create_access_token(identity=str(user.id))
+    refresh_token = create_refresh_token(identity=str(user.id))
+
+    return jsonify({
+        "message": "Login successful",
+        "user": user.to_dict(),
+        "access_token": access_token,
+        "refresh_token": refresh_token,
+    }), 200
+
+
