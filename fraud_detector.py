@@ -1,0 +1,269 @@
+"""
+Fraud Detection Service — UniPay FraudX
+Trained on: unipay_fraudx_simulated_dataset.xlsx (1000 transactions)
+
+Features used:
+  amount, hour, txn_count_1hr,
+  sender_type, receiver_type, location_type,
+  is_odd_hour, is_high_amount, is_high_velocity
+
+Model: Random Forest (100 estimators) — AUC: 1.00 on holdout set
+"""
+
+import os
+import numpy as np
+import pandas as pd
+from datetime import datetime, timedelta
+import joblib
+
+MODEL_PATH = os.path.join(os.path.dirname(__file__), "fraud_model.pkl")
+
+# Dataset-derived thresholds
+# Normal transactions: amount <= 4990, txn_count <= 10, hour 5-23
+# Hours 0-4 are 100% Suspicious in the dataset
+AMOUNT_THRESHOLD = int(os.getenv("FRAUD_AMOUNT_THRESHOLD", 5000))
+VELOCITY_LIMIT = int(os.getenv("FRAUD_VELOCITY_LIMIT", 10))
+ODD_HOUR_MAX = 4
+
+# Supported categorical values from training data
+SENDER_TYPES   = ["Student", "Vendor"]
+RECEIVER_TYPES = ["Canteen", "Hostel", "Library", "Local_Shop"]
+LOCATION_TYPES = ["Community", "University"]
+
+_bundle = None
+
+
+def _get_bundle():
+    global _bundle
+    if _bundle is None:
+        if not os.path.exists(MODEL_PATH):
+            raise FileNotFoundError(
+                f"ML model not found at {MODEL_PATH}. "
+                "Run seed.py or the training script first."
+            )
+        _bundle = joblib.load(MODEL_PATH)
+    return _bundle
+
+
+def _safe_encode(encoder, value, fallback=0):
+    try:
+        return int(encoder.transform([value])[0])
+    except Exception:
+        return fallback
+
+
+def _normalize_sender(payment_method):
+    """Map transaction payment_method to dataset sender_type vocabulary."""
+    mapping = {
+        "upi": "Student", "wallet": "Student",
+        "card": "Vendor", "netbanking": "Vendor",
+    }
+    return mapping.get(str(payment_method).lower(), "Vendor")
+
+
+def _normalize_receiver(merchant_category):
+    """Map merchant_category to dataset receiver_type vocabulary."""
+    if not merchant_category:
+        return "Local_Shop"
+    v = str(merchant_category).strip().title().replace(" ", "_")
+    return v if v in RECEIVER_TYPES else "Local_Shop"
+
+
+def _normalize_location(location):
+    """Map location to dataset location_type vocabulary."""
+    if not location:
+        return "Community"
+    loc = str(location).strip().lower()
+    if any(k in loc for k in ["university", "campus", "college"]):
+        return "University"
+    return "Community"
+
+
+# ─── Rule-Based Engine ────────────────────────────────────────────────────────
+
+def run_rule_engine(transaction, recent_transactions, blocklist_values):
+    """
+    8 rules derived from dataset analysis.
+    Returns: (triggered_rules: list[str], rule_score: float 0-1)
+    """
+    triggered = []
+
+    # Rule 1: High amount (all Normal transactions are <= 4990)
+    if transaction.amount > AMOUNT_THRESHOLD:
+        triggered.append("HIGH_AMOUNT")
+
+    # Rule 2: Odd hour (hours 0-4 are 100% Suspicious in dataset)
+    if transaction.created_at.hour <= ODD_HOUR_MAX:
+        triggered.append("ODD_HOUR_TRANSACTION")
+
+    # Rule 3: High velocity (>= 10 txns/hr mirrors dataset feature)
+    txn_count_1hr = len([
+        t for t in recent_transactions
+        if t.created_at >= datetime.utcnow() - timedelta(hours=1)
+        and t.id != transaction.id
+    ])
+    if txn_count_1hr >= VELOCITY_LIMIT:
+        triggered.append("HIGH_VELOCITY")
+
+    # Rule 4: Compound risk — high amount AND high velocity
+    if "HIGH_AMOUNT" in triggered and "HIGH_VELOCITY" in triggered:
+        triggered.append("HIGH_AMOUNT_AND_VELOCITY")
+
+    # Rule 5: Blocked IP
+    if transaction.ip_address and transaction.ip_address in blocklist_values:
+        triggered.append("BLOCKED_IP")
+
+    # Rule 6: Blocked device
+    if transaction.device_id and transaction.device_id in blocklist_values:
+        triggered.append("BLOCKED_DEVICE")
+
+    # Rule 7: Round large amount (structuring)
+    if transaction.amount >= 1000 and transaction.amount % 1000 == 0:
+        triggered.append("ROUND_LARGE_AMOUNT")
+
+    # Rule 8: Duplicate amounts in short window
+    dup_count = sum(
+        1 for t in recent_transactions
+        if t.amount == transaction.amount and t.id != transaction.id
+    )
+    if dup_count >= 2:
+        triggered.append("DUPLICATE_AMOUNT")
+
+    rule_weights = {
+        "HIGH_AMOUNT":              0.55,
+        "ODD_HOUR_TRANSACTION":     0.70,
+        "HIGH_VELOCITY":            0.50,
+        "HIGH_AMOUNT_AND_VELOCITY": 0.80,
+        "BLOCKED_IP":               1.00,
+        "BLOCKED_DEVICE":           1.00,
+        "ROUND_LARGE_AMOUNT":       0.20,
+        "DUPLICATE_AMOUNT":         0.30,
+    }
+    rule_score = min(1.0, sum(rule_weights.get(r, 0.1) for r in set(triggered)))
+    return triggered, round(rule_score, 4)
+
+
+# ─── ML Scoring ───────────────────────────────────────────────────────────────
+
+def get_ml_score(transaction, txn_count_1hr):
+    """
+    Returns probability of being Suspicious (0.0 – 1.0)
+    using the Random Forest trained on UniPay FraudX dataset.
+    """
+    try:
+        bundle = _get_bundle()
+        hour = transaction.created_at.hour
+        amount = float(transaction.amount)
+
+        row = pd.DataFrame([[
+            amount,
+            hour,
+            txn_count_1hr,
+            _safe_encode(bundle["le_sender"],   _normalize_sender(transaction.payment_method)),
+            _safe_encode(bundle["le_receiver"],  _normalize_receiver(transaction.merchant_category)),
+            _safe_encode(bundle["le_location"],  _normalize_location(transaction.location)),
+            1 if hour <= ODD_HOUR_MAX else 0,
+            1 if amount > AMOUNT_THRESHOLD else 0,
+            1 if txn_count_1hr >= VELOCITY_LIMIT else 0,
+        ]], columns=bundle["features"])
+
+        proba = bundle["model"].predict_proba(row)[0]
+        return round(float(proba[1]), 4)
+
+    except Exception as e:
+        print(f"[ML] Scoring error: {e}")
+        return 0.5
+
+
+# ─── Combined Fraud Analysis ─────────────────────────────────────────────────
+
+def analyze_transaction(transaction, recent_transactions, blocklist_values, known_devices=None):
+    """
+    Full fraud analysis: rules + ML combined.
+
+    Returns:
+        is_fraud         bool
+        fraud_score      float 0-1
+        triggered_rules  list[str]
+        ml_score         float 0-1
+        rule_score       float 0-1
+        recommendation   BLOCK | FLAG_FOR_REVIEW | MONITOR | APPROVE
+        risk_level       CRITICAL | HIGH | MEDIUM | LOW
+        explanation      str
+        txn_count_1hr    int
+    """
+    txn_count_1hr = len([
+        t for t in recent_transactions
+        if t.created_at >= datetime.utcnow() - timedelta(hours=1)
+    ])
+
+    triggered_rules, rule_score = run_rule_engine(transaction, recent_transactions, blocklist_values)
+    ml_score = get_ml_score(transaction, txn_count_1hr)
+
+    # Hard block on blocklist — no ML needed
+    if "BLOCKED_IP" in triggered_rules or "BLOCKED_DEVICE" in triggered_rules:
+        fraud_score = 1.0
+    else:
+        fraud_score = round(0.6 * rule_score + 0.4 * ml_score, 4)
+
+    is_fraud = fraud_score >= 0.6
+
+    if fraud_score >= 0.90:
+        recommendation, risk_level = "BLOCK", "CRITICAL"
+    elif fraud_score >= 0.60:
+        recommendation, risk_level = "FLAG_FOR_REVIEW", "HIGH"
+    elif fraud_score >= 0.30:
+        recommendation, risk_level = "MONITOR", "MEDIUM"
+    else:
+        recommendation, risk_level = "APPROVE", "LOW"
+
+    explanation = _build_explanation(transaction, triggered_rules, ml_score, fraud_score, risk_level)
+
+    return {
+        "is_fraud": is_fraud,
+        "fraud_score": fraud_score,
+        "triggered_rules": triggered_rules,
+        "ml_score": ml_score,
+        "rule_score": rule_score,
+        "recommendation": recommendation,
+        "risk_level": risk_level,
+        "explanation": explanation,
+        "txn_count_1hr": txn_count_1hr,
+    }
+
+
+def _build_explanation(tx, rules, ml_score, fraud_score, risk_level):
+    parts = [f"Risk: {risk_level}. Fraud score: {fraud_score:.2f}."]
+    if rules:
+        parts.append(f"Rules triggered: {', '.join(rules)}.")
+    if ml_score >= 0.7:
+        parts.append("ML model flagged this pattern as highly anomalous.")
+    elif ml_score >= 0.4:
+        parts.append("ML model detected a moderate anomaly.")
+    else:
+        parts.append("ML model considers this pattern normal.")
+    return " ".join(parts)
+
+
+# ─── Dataset Info (for admin API) ────────────────────────────────────────────
+
+def get_dataset_info():
+    return {
+        "dataset": "UniPay FraudX Simulated Dataset",
+        "total_records": 1000,
+        "normal_count": 263,
+        "suspicious_count": 737,
+        "suspicious_rate_pct": 73.7,
+        "features": ["amount", "hour", "txn_count_1hr",
+                     "sender_type", "receiver_type", "location_type"],
+        "model": "Random Forest (100 estimators)",
+        "model_auc": 1.0,
+        "thresholds": {
+            "high_amount": AMOUNT_THRESHOLD,
+            "high_velocity_per_hr": VELOCITY_LIMIT,
+            "odd_hour_range": "00:00 – 04:59",
+        },
+        "sender_types": SENDER_TYPES,
+        "receiver_types": RECEIVER_TYPES,
+        "location_types": LOCATION_TYPES,
+    }
