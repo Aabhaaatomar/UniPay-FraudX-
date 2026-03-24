@@ -66,5 +66,5 @@ Developed as part of a university academic project to explore machine learning a
 
 ### 📋 Recent Transactions
 
-![Preview 3](transaction.png)
+![Preview 3](transactions.png)
 
