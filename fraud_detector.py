@@ -25,3 +25,57 @@ AMOUNT_THRESHOLD = int(os.getenv("FRAUD_AMOUNT_THRESHOLD", 5000))
 VELOCITY_LIMIT = int(os.getenv("FRAUD_VELOCITY_LIMIT", 10))
 ODD_HOUR_MAX = 4
 
+
+# Supported categorical values from training data
+SENDER_TYPES   = ["Student", "Vendor"]
+RECEIVER_TYPES = ["Canteen", "Hostel", "Library", "Local_Shop"]
+LOCATION_TYPES = ["Community", "University"]
+
+_bundle = None
+
+
+def _get_bundle():
+    global _bundle
+    if _bundle is None:
+        if not os.path.exists(MODEL_PATH):
+            raise FileNotFoundError(
+                f"ML model not found at {MODEL_PATH}. "
+                "Run seed.py or the training script first."
+            )
+        _bundle = joblib.load(MODEL_PATH)
+    return _bundle
+
+
+def _safe_encode(encoder, value, fallback=0):
+    try:
+        return int(encoder.transform([value])[0])
+    except Exception:
+        return fallback
+
+
+def _normalize_sender(payment_method):
+    """Map transaction payment_method to dataset sender_type vocabulary."""
+    mapping = {
+        "upi": "Student", "wallet": "Student",
+        "card": "Vendor", "netbanking": "Vendor",
+    }
+    return mapping.get(str(payment_method).lower(), "Vendor")
+
+
+def _normalize_receiver(merchant_category):
+    """Map merchant_category to dataset receiver_type vocabulary."""
+    if not merchant_category:
+        return "Local_Shop"
+    v = str(merchant_category).strip().title().replace(" ", "_")
+    return v if v in RECEIVER_TYPES else "Local_Shop"
+
+
+def _normalize_location(location):
+    """Map location to dataset location_type vocabulary."""
+    if not location:
+        return "Community"
+    loc = str(location).strip().lower()
+    if any(k in loc for k in ["university", "campus", "college"]):
+        return "University"
+    return "Community"
+
