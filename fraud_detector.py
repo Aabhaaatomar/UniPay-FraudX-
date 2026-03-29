@@ -109,3 +109,38 @@ def run_rule_engine(transaction, recent_transactions, blocklist_values):
     if "HIGH_AMOUNT" in triggered and "HIGH_VELOCITY" in triggered:
         triggered.append("HIGH_AMOUNT_AND_VELOCITY")
 
+
+# Rule 5: Blocked IP
+    if transaction.ip_address and transaction.ip_address in blocklist_values:
+        triggered.append("BLOCKED_IP")
+
+    # Rule 6: Blocked device
+    if transaction.device_id and transaction.device_id in blocklist_values:
+        triggered.append("BLOCKED_DEVICE")
+
+    # Rule 7: Round large amount (structuring)
+    if transaction.amount >= 1000 and transaction.amount % 1000 == 0:
+        triggered.append("ROUND_LARGE_AMOUNT")
+
+    # Rule 8: Duplicate amounts in short window
+    dup_count = sum(
+        1 for t in recent_transactions
+        if t.amount == transaction.amount and t.id != transaction.id
+    )
+    if dup_count >= 2:
+        triggered.append("DUPLICATE_AMOUNT")
+
+    rule_weights = {
+        "HIGH_AMOUNT":              0.55,
+        "ODD_HOUR_TRANSACTION":     0.70,
+        "HIGH_VELOCITY":            0.50,
+        "HIGH_AMOUNT_AND_VELOCITY": 0.80,
+        "BLOCKED_IP":               1.00,
+        "BLOCKED_DEVICE":           1.00,
+        "ROUND_LARGE_AMOUNT":       0.20,
+        "DUPLICATE_AMOUNT":         0.30,
+    }
+    rule_score = min(1.0, sum(rule_weights.get(r, 0.1) for r in set(triggered)))
+    return triggered, round(rule_score, 4)
+
+
