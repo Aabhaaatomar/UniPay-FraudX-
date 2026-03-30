@@ -144,3 +144,34 @@ def run_rule_engine(transaction, recent_transactions, blocklist_values):
     return triggered, round(rule_score, 4)
 
 
+# ─── ML Scoring ───────────────────────────────────────────────────────────────
+
+def get_ml_score(transaction, txn_count_1hr):
+    """
+    Returns probability of being Suspicious (0.0 – 1.0)
+    using the Random Forest trained on UniPay FraudX dataset.
+    """
+    try:
+        bundle = _get_bundle()
+        hour = transaction.created_at.hour
+        amount = float(transaction.amount)
+
+        row = pd.DataFrame([[
+            amount,
+            hour,
+            txn_count_1hr,
+            _safe_encode(bundle["le_sender"],   _normalize_sender(transaction.payment_method)),
+            _safe_encode(bundle["le_receiver"],  _normalize_receiver(transaction.merchant_category)),
+            _safe_encode(bundle["le_location"],  _normalize_location(transaction.location)),
+            1 if hour <= ODD_HOUR_MAX else 0,
+            1 if amount > AMOUNT_THRESHOLD else 0,
+            1 if txn_count_1hr >= VELOCITY_LIMIT else 0,
+        ]], columns=bundle["features"])
+
+        proba = bundle["model"].predict_proba(row)[0]
+        return round(float(proba[1]), 4)
+
+    except Exception as e:
+        print(f"[ML] Scoring error: {e}")
+        return 0.5
+
