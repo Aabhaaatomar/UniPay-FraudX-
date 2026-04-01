@@ -7,6 +7,56 @@
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
 </head>
 
+<script>
+    window.onload = function () {
+
+        const amounts = {{ amounts | tojson
+    }};
+    const txnCounts = {{ txn_counts | tojson }};
+    const labels = {{ labels | tojson }};
+
+    const dataPoints = amounts.map((amt, i) => ({
+        x: amt,
+        y: txnCounts[i]
+    }));
+
+    const colors = labels.map(l =>
+        l === "Suspicious" ? "red" : "green"
+    );
+
+    const ctx = document.getElementById('scatterChart').getContext('2d');
+
+    new Chart(ctx, {
+        type: 'scatter',
+        data: {
+            datasets: [{
+                label: 'Transactions',
+                data: dataPoints,
+                backgroundColor: colors
+            }]
+        },
+        options: {
+            responsive: true,
+            scales: {
+                x: {
+                    title: {
+                        display: true,
+                        text: 'Amount'
+                    }
+                },
+                y: {
+                    title: {
+                        display: true,
+                        text: 'Txn Count'
+                    }
+                }
+            }
+        }
+    });
+
+};
+</script>
+
 <body>
 
     <h1>💳 UniPay FraudX Dashboard</h1>
@@ -47,6 +97,11 @@
         <div class="chart-box">
             <h3>Transactions by Hour</h3>
             <canvas id="barChart"></canvas>
+        </div>
+
+        <div class="chart-box">
+            <h3>Transaction Scatter Plot</h3>
+            <canvas id="scatterChart"></canvas>
         </div>
 
     </div>
