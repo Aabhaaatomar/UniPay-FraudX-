@@ -110,72 +110,51 @@ theme = st.radio("Theme", ["Dark", "Light"], horizontal=True)
 # 🎨 DYNAMIC CSS
 if theme == "Dark":
     st.markdown("""
-    <style>
-
-    /* REMOVE SIDEBAR */
-    section[data-testid="stSidebar"] {
-        display: none;
-    }
-
-    /* BACKGROUND */
-    [data-testid="stAppViewContainer"] {
-        background-color: #0e1117;
-    }
-
-    /* HEADER */
-    [data-testid="stHeader"] {
-        background: transparent;
-    }
-
-    /* TEXT */
-    h1, h2, h3, h4, h5, h6 {
-        color: white !important;
-        text-align: center;
-    }
-
-    p, label, div {
-        color: #e4e6eb !important;
-    }
-
-    /* NAVBAR */
-    div[data-testid="stRadio"] > div {
-        flex-direction: row;
-        justify-content: center;
-        gap: 20px;
-    }
-
-    /* DATAFRAME */
-    [data-testid="stDataFrame"] {
-        background-color: #1c1f26;
-        border-radius: 12px;
-        padding: 10px;
-    }
-
-    /* BUTTON */
-    .stButton > button {
-        background: linear-gradient(90deg, #ff4b8b, #ff6b6b);
-        color: white;
-        border-radius: 10px;
-        padding: 10px 20px;
-        border: none;
-        transition: 0.3s;
-        font-weight: 600;
-    }
-
-    .stButton > button:hover {
-        transform: scale(1.05);
-        background: linear-gradient(90deg, #ff6b6b, #ff4b8b);
-    }
-
-    /* FULL WIDTH */
-    .block-container {
-        padding-left: 2rem;
-        padding-right: 2rem;
-    }
-
-    </style>
-    """, unsafe_allow_html=True)
-
+                <style>
+                /* REMOVE SIDEBAR */
+                section[data-testid="stSidebar"] {
+                    display: none;
+                    }
+                /* BACKGROUND */
+                [data-testid="stAppViewContainer"] {
+                    background-color: #0e1117;
+                    }
+                /* HEADER */
+                [data-testid="stHeader"] {
+                    background: transparent;
+                    }
+                /* TEXT */
+                h1, h2, h3, h4, h5, h6 {
+                    color: white !important;
+                    text-align: center;
+                    }
+                    p, label, div {
+                        color: #e4e6eb !important;
+                        }
+                /* NAVBAR */
+                div[data-testid="stRadio"] > div {
+                    flex-direction: row;
+                    justify-content: center;
+                    gap: 20px;
+                    }
+                /* DATAFRAME */
+                [data-testid="stDataFrame"] {
+                    background-color: #1c1f26;
+                    border-radius: 12px;
+                    padding: 10px;
+                    }
+                /* BUTTON */
+                .stButton > button:hover {
+                    transform: scale(1.05);
+                    background: linear-gradient(90deg, #ff6b6b, #ff4b8b);
+                    }
+                /* FULL WIDTH */
+                .block-container {
+                    padding-left: 2rem;
+                    padding-right: 2rem;
+                    }
+                    </style>"""
+                    , unsafe_allow_html=True)
 else:
     st.markdown("""
     <style>
