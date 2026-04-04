@@ -97,11 +97,11 @@ The application is deployed using Streamlit Cloud and can be accessed online.
 
 ▶️ **App Demo (UI + Prediction)** 
 
-[Click to Watch](assets/videos/demo1.mp4)
+👉🏻 [Watch Here](assets/videos/demo1.mp4)
 
 ▶️ **Code Walkthrough**  
 
-[Click to Watch](assets/videos/demo2.mp4)
+👉🏻 [Watch Here](assets/videos/demo2.mp4)
 
 
 ---
