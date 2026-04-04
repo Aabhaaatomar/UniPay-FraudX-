@@ -19,4 +19,4 @@ model.fit(X, y)
 with open("fraud_model.pkl", "wb") as f:
     pickle.dump(model, f)
 
-print("Model trained & saved successfully 😎")
+print("Model trained & saved successfully")
