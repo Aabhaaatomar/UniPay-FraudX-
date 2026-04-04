@@ -1,60 +1,97 @@
-# UniPay FraudX : A Machine Learning Based Digital Payment Fraud Detection System
-
-## Project Overview
-UniPay FraudX is a machine learning-based academic project designed to identify suspicious digital payment transactions within university and community ecosystems.
-
-The system analyzes simulated transaction data and classifies transactions as **Normal** or **Suspicious** to promote awareness and understanding of digital payment risks.
+# 🚀 UniPay FraudX  
+### AI-Powered Digital Payment Fraud Detection System
 
 ---
 
-## Problem Statement
-With the rapid growth of digital payments in universities and local communities, students and small vendors often lack awareness about suspicious or unusual transaction patterns.
+## 📌 Overview  
+UniPay FraudX is a machine learning-based web application designed to detect fraudulent and suspicious digital transactions in university and community ecosystems.  
 
-Existing fraud detection systems are complex, expensive, and designed for financial institutions, making them unsuitable for academic environments.
-
----
-
-## Objectives
-- Analyze digital transaction patterns
-- Identify suspicious transactions using Machine Learning
-- Provide simple and explainable results
-- Build a user-friendly dashboard for monitoring
-- Promote digital payment awareness
-- Enhance understanding of fraud detection concepts for students
+The system analyzes transaction patterns and classifies them as **Normal** or **Suspicious**, providing real-time insights through an interactive dashboard.
 
 ---
 
-- **Dataset:** AI-generated simulated transaction dataset designed to mimic real-world digital payment patterns for fraud detection
+## ⚠️ Problem Statement  
+With the rapid growth of digital payments in academic and local communities, there is an increasing risk of fraudulent transactions.  
+
+Existing fraud detection systems are often complex, expensive, and not suitable for educational environments. There is a need for a simple, accessible, and intelligent system to identify suspicious activities and promote digital payment awareness.
 
 ---
 
-## Technology Stack
-- **Backend:** Python (Flask)
-- **Machine Learning:** Logistic Regression (Scikit-learn)
-- **Data Processing:** Pandas, NumPy
-- **Frontend:** HTML, CSS, JavaScript
-- **Visualization:** Chart.js
-- **Deployment:** Streamlit (Interactive Web App)
-- 
+## 🎯 Objectives  
+- Analyze digital transaction patterns using Machine Learning  
+- Identify and classify suspicious transactions  
+- Provide clear and explainable results  
+- Build an interactive and user-friendly dashboard  
+- Promote awareness of digital payment risks  
+- Enhance understanding of fraud detection concepts  
 
 ---
 
-## Features
-- Simulated transaction dataset (privacy-safe)
-- Dashboard displaying fraud distribution charts
-- Classification of transactions (Normal / Suspicious)
-- Visual analytics (charts & summary cards)
-- Clean and user-friendly interface
+## 💡 Proposed Solution  
+UniPay FraudX is a web-based application that uses machine learning to analyze transaction data and detect anomalies.  
+
+The system processes transaction inputs, applies a trained model, and classifies them into fraud or normal categories.  
+
+Users can visualize transaction insights, risk levels, and patterns through an interactive dashboard, making the system both educational and practical.
 
 ---
 
-## System Workflow
-1. Simulated transaction data is created  
-2. Data is processed and analyzed  
-3. Machine learning model predicts transaction type  
-4. Results are displayed on dashboard  
-5. User can monitor and understand risky patterns  
+## 🛠️ Tech Stack  
+
+### 🔹 Backend  
+- Python  
+- Streamlit  
+
+### 🔹 Machine Learning  
+- Scikit-learn (Logistic Regression)  
+
+### 🔹 Data Processing  
+- Pandas  
+- NumPy  
+
+### 🔹 Visualization  
+- Plotly  
+
+### 🔹 Frontend  
+- Streamlit UI  
+- HTML / CSS  
 
 ---
 
-Developed as part of a university academic project to explore machine learning applications in digital payment fraud detection.
+## 📊 Features  
+- 📈 Interactive dashboard with charts  
+- 🔍 Real-time fraud prediction  
+- ⚠️ Risk level detection (Normal / Suspicious)  
+- 🎨 Dark & Light theme support  
+- 📊 Data visualization (Pie, Bar, Line charts)  
+- 🧠 Machine learning-based classification  
+- 🖥️ Clean and modern UI  
+
+---
+
+## 🔄 System Workflow  
+1. User inputs transaction details  
+2. Data is preprocessed  
+3. ML model analyzes the input  
+4. Transaction is classified  
+5. Result is displayed with insights  
+6. Dashboard updates with visualization  
+
+---
+
+## 📂 Dataset  
+- AI-generated simulated dataset  
+- Designed to mimic real-world digital transactions  
+- Ensures privacy and safe academic usage  
+
+---
+
+## 🌐 Deployment  
+The application is deployed using Streamlit Cloud and can be accessed online.  
+
+👉 **Live Demo:** *(Add your link here)*  
+
+---
+
+## ⭐ Conclusion  
+UniPay FraudX demonstrates how machine learning can be applied to detect fraud in digital payments while maintaining simplicity and usability for academic environments.
