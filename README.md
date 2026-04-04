@@ -97,7 +97,7 @@ The application is deployed using Streamlit Cloud and can be accessed online.
 
 ▶️ **App Demo (UI + Prediction)** 
 
-👉🏻 [Watch Here](assets/videos/demo1.mp4)
+👉🏻 [Watch Here](https://drive.google.com/file/d/1u0sX0nmuWAGCKgMNCd_W20RyGXZOi61K/view?usp=drivesdk)
 
 ▶️ **Code Walkthrough**  
 
