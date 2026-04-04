@@ -90,12 +90,29 @@ else:
     """, unsafe_allow_html=True)
 
 # 👉 NAVIGATION
+
 page = st.radio(
     "",
     ["Home", "Analysis", "Dashboard", "Prediction", "About"],
-    horizontal=True
+    horizontal=True,
+    key="nav"
 )
 
+# 👉 THEME BELOW / SIDE
+theme = st.radio(
+    "",
+    ["🌙", "☀️"],
+    horizontal=True,
+    key="theme_toggle"
+)
+
+nav_col1, nav_col2 = st.columns([6,2])
+
+with nav_col1:
+    page = st.radio("", ["Home", "Analysis", "Dashboard", "Prediction", "About"], horizontal=True)
+
+with nav_col2:
+    theme = st.radio("", ["🌙", "☀️"], horizontal=True)
 
 # ------------------ LOAD DATA ------------------
 df = pd.read_excel("data.xlsx")
