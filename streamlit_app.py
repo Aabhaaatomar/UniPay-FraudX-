@@ -234,7 +234,7 @@ elif page == "Dashboard":
             names=["Normal", "Fraud"],
             hole=0.5,
             title=" 📊 Fraud vs Normal")
-    fig_donut.update_layout(annotations=[dict(text='Transaction<br>Split', x=0.5, y=0.5, font_size=18, showarrow=False, font = dict(size=20, color="#333"))])
+    fig_donut.update_layout(annotations=[dict(text='Transaction<br>Split', x=0.5, y=0.5, font_size=22, showarrow=False, font = dict(size=20, color="#ff4b8b"))])
     fig_donut.update_layout(plot_bgcolor="#f5f5f5")
     
     fig_location = px.pie(df,
