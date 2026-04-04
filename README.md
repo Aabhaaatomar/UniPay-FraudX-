@@ -58,25 +58,3 @@ Existing fraud detection systems are complex, expensive, and designed for financ
 ---
 
 Developed as part of a university academic project to explore machine learning applications in digital payment fraud detection.
-
-## 📊 Preview
-
-### ✨ Landing Page
-
-![Preview 1](Landing_page.png)
-
-
-### 🖥️ Dashboard
-
-![Preview 2](Dashboard.png)
-
-
-### 📈 Fraud Distribution Charts
-
-![Preview 3](Charts.png)
-
-
-### 📋 Data Overview
-
-![Preview 4](Data_overview.png)
-
