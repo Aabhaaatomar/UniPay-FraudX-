@@ -3,6 +3,12 @@ import streamlit as st
 import pandas as pd
 import pickle
 import plotly.express as px
+import os
+import pickle
+
+model_path = os.path.join(os.path.dirname(__file__),"fraud_model.pkl")
+with open(model_path,"rb") as f:
+    model = pickle.load(f)
 
 st.set_page_config(page_title="UniPay FraudX", layout="wide")
 
