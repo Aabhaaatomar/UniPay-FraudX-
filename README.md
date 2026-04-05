@@ -86,26 +86,6 @@ Users can visualize transaction insights, risk levels, and patterns through an i
 
 ---
 
-## 🌐 Deployment  
-The application is deployed using Streamlit Cloud and can be accessed online.  
-
-👉 **Live Demo:** *https://minor-project-sem-4-2wdxbhegndunimrnis6i5r.streamlit.app/*  
-
----
-
-## 🎥 Demo Videos
-
-▶️ **App Demo (UI + Prediction)** 
-
-👉🏻 [Watch Here](https://drive.google.com/file/d/1u0sX0nmuWAGCKgMNCd_W20RyGXZOi61K/view?usp=drivesdk)
-
-▶️ **Code Walkthrough**  
-
-👉🏻 [Watch Here](https://drive.google.com/file/d/1PwNX1kOSlfxGxm05vSNyboouHSxsB9aH/view?usp=drivesdk)
-
-
----
-
 ## 📌 Future Improvements  
 - Integration with real-time payment APIs  
 - Advanced ML models (Random Forest, XGBoost)  
