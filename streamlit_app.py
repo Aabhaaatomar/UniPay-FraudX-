@@ -3,6 +3,11 @@ import streamlit as st
 import pandas as pd
 import pickle
 import plotly.express as px
+from audio_recorder_streamlit import audio_recorder
+import speech_recognition as sr
+from gtts import gTTS
+import io
+import re
 
 st.set_page_config(page_title="UniPay FraudX", layout="wide")
 
@@ -144,22 +149,44 @@ if theme == "Dark":
                     border-radius: 12px;
                     padding: 10px;
                     }
+                /* EXPANDER */
+                [data-testid="stExpander"] {
+                    background-color: #1c1f26 !important;
+                    border-radius: 12px;
+                    border: 1px solid #333;
+                }
+                [data-testid="stExpander"] summary, [data-testid="stExpander"] div[role="button"] {
+                    background-color: #2b303b !important;
+                    color: white !important;
+                    border-radius: 12px;
+                }
                  
                 /* BUTTON */
-                
-                .stButton > button {
-        background: linear-gradient(90deg, #ff4b8b, #ff6b6b);
-        color: white;
-        border-radius: 10px;
-        padding: 10px 20px;
-        border: none;
-        transition: 0.3s;
-        font-weight: 600;
-    }
-                .stButton > button:hover {
+                .stButton {
+                    opacity: 1 !important;
+                }
+                .stButton > button, button[kind="secondary"], button[kind="primary"] {
+                    background: linear-gradient(90deg, #ff4b8b, #ff6b6b) !important;
+                    color: white !important;
+                    border-radius: 10px !important;
+                    padding: 10px 20px !important;
+                    border: none !important;
+                    transition: 0.3s;
+                    font-weight: 600 !important;
+                    opacity: 1 !important;
+                }
+                .stButton > button p, .stButton > button div {
+                    color: white !important;
+                    font-weight: 600 !important;
+                }
+                .stButton > button:hover, button[kind="secondary"]:hover, button[kind="primary"]:hover {
                     transform: scale(1.05);
-                    background: linear-gradient(90deg, #ff6b6b, #ff4b8b);
-                    }
+                    background: linear-gradient(90deg, #ff6b6b, #ff4b8b) !important;
+                }
+                .stButton > button:disabled, button[kind="secondary"]:disabled, button[kind="primary"]:disabled {
+                    background: linear-gradient(90deg, #ff4b8b, #ff6b6b) !important;
+                    opacity: 1 !important;
+                }
                 /* FULL WIDTH */
                 .block-container {
                     padding-left: 2rem;
@@ -408,9 +435,75 @@ elif page == "Prediction":
 
     st.title("🔮 Predict Transaction")
 
-    amount = st.number_input("Amount")
-    txn = st.number_input("Txn Count")
-    hour = st.slider("Hour", 0, 23)
+    if "amount_val" not in st.session_state:
+        st.session_state.amount_val = 0.0
+    if "txn_val" not in st.session_state:
+        st.session_state.txn_val = 0
+    if "hour_val" not in st.session_state:
+        st.session_state.hour_val = 12
+
+    st.markdown("<br>", unsafe_allow_html=True)
+    st.markdown("### 🎙️ Voice-Activated Transaction")
+    st.markdown("<p style='text-align: center; color: #aaa; margin-bottom: 20px;'>Tap the microphone below and speak your transaction details.</p>", unsafe_allow_html=True)
+    
+    # Use columns to tightly center the recorder and button
+    col1, col2, col3, col4 = st.columns([1, 4, 1, 1])
+    
+    with col2:
+        audio_bytes = audio_recorder(
+            text="Click to speak transaction details...", 
+            recording_color="#ff1e56", 
+            neutral_color="#ff4b8b", 
+            icon_name="microphone", 
+            icon_size="2x", 
+            pause_threshold=2.0
+        )
+        
+    with col3:
+        if st.button("🗑️ Delete"):
+            if audio_bytes:
+                st.session_state.last_audio = audio_bytes
+            st.session_state.amount_val = 0.0
+            st.session_state.txn_val = 0
+            st.session_state.hour_val = 12
+            st.rerun()
+    st.markdown("<br>", unsafe_allow_html=True)
+    
+    if audio_bytes and ("last_audio" not in st.session_state or st.session_state.last_audio != audio_bytes):
+        st.session_state.last_audio = audio_bytes
+        st.audio(audio_bytes, format="audio/wav")
+        r = sr.Recognizer()
+        with sr.AudioFile(io.BytesIO(audio_bytes)) as source:
+            audio_data = r.record(source)
+            try:
+                text = r.recognize_google(audio_data)
+                st.success(f"🗣️ Transcribed: '{text}'")
+                nums = [int(s) for s in re.findall(r'\d+', text)]
+                if len(nums) >= 1:
+                    st.session_state.amount_val = float(nums[0])
+                if len(nums) >= 2:
+                    st.session_state.txn_val = int(nums[1])
+                if len(nums) >= 3:
+                    st.session_state.hour_val = min(23, int(nums[2]))
+            except sr.UnknownValueError:
+                st.warning("⚠️ Google Speech Recognition could not understand the audio. Please try speaking a bit louder or clearer.")
+                import base64
+                tts = gTTS(text="Voice not heard properly, try again", lang='en')
+                fp = io.BytesIO()
+                tts.write_to_fp(fp)
+                fp.seek(0)
+                b64 = base64.b64encode(fp.read()).decode()
+                md = f'<audio autoplay="true"><source src="data:audio/mp3;base64,{b64}" type="audio/mp3"></audio>'
+                st.markdown(md, unsafe_allow_html=True)
+            except sr.RequestError as e:
+                st.error(f"❌ Could not request results from Google Speech Recognition service; {e}")
+            except Exception as e:
+                st.error(f"❌ Error processing audio: {str(e)}")
+
+    with st.expander("⌨️ Manual Entry", expanded=True):
+        amount = st.number_input("Amount", value=st.session_state.amount_val)
+        txn = st.number_input("Txn Count", value=st.session_state.txn_val)
+        hour = st.slider("Hour", 0, 23, value=st.session_state.hour_val)
 
     if st.button("Predict"):
         if amount > 10000:
@@ -506,6 +599,17 @@ elif page == "Prediction":
         • Continue normal usage
         </div>
         """, unsafe_allow_html=True)
+        
+        # --- TTS Audio Output ---
+        import base64
+        warning_text = "Alert, this transaction matches a high risk profile. Please verify immediately." if pred == 1 else "Transaction appears safe. No immediate action required."
+        tts = gTTS(text=warning_text, lang='en')
+        fp = io.BytesIO()
+        tts.write_to_fp(fp)
+        fp.seek(0)
+        b64 = base64.b64encode(fp.read()).decode()
+        md = f'<audio autoplay="true"><source src="data:audio/mp3;base64,{b64}" type="audio/mp3"></audio>'
+        st.markdown(md, unsafe_allow_html=True)
     
 
     
