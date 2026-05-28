@@ -114,15 +114,39 @@ B.Tech CSE (Data Science)
 - Nishant Rajawat
 - Sakshi Rajawat
 - Chetna Sharma
+
 ---
+
+## 📂 Project Structure
+```text
+UniPay-FraudX/
+├── dataset/              # Transaction datasets
+├── models/               # Pre-trained ML models
+├── backend_archive/      # (Archived) Older Flask backend files
+├── templates/            # (Archived) Older HTML templates
+├── static/               # (Archived) Older CSS files
+├── app.py                # Main Streamlit Dashboard Application
+├── requirements.txt      # Project dependencies
+└── README.md             # Project documentation
+```
 
 ## ⚙️ Installation
 
-git clone *https://github.com/Aabhaaatomar/UniPay-FraudX*
+1. Clone the repository:
+```bash
+git clone https://github.com/Aabhaaatomar/UniPay-FraudX
+cd UniPay-FraudX
+```
 
+2. Install the required dependencies:
+```bash
 pip install -r requirements.txt
+```
 
+3. Run the application:
+```bash
 streamlit run app.py
+```
 
 ---
 

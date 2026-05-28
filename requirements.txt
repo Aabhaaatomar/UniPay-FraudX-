@@ -5,5 +5,8 @@ plotly
 scikit-learn
 openpyxl
 joblib
-
-
+flask
+flask-jwt-extended
+flask-sqlalchemy
+flask-mail
+flask-socketio
