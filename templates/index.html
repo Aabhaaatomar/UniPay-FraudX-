@@ -9,249 +9,652 @@
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="/static/style.css">
+    <!-- No external CSS dependencies beyond Google Fonts -->
     <style>
-        * { box-sizing: border-box; margin: 0; padding: 0; }
+        /* ── Reset & Base ── */
+        *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+        html { scroll-behavior: smooth; }
         body {
             font-family: 'Inter', sans-serif;
-            background: #0b0f19;
+            background: #080c14;
             color: #f3f4f6;
             min-height: 100vh;
             overflow-x: hidden;
+            padding-top: 0;
         }
 
         /* ── Navbar ── */
+        .navbar-outer {
+            position: sticky;
+            top: 1rem;
+            z-index: 200;
+            display: flex;
+            justify-content: center;
+            padding: 0 1.5rem;
+            pointer-events: none;
+        }
         .navbar {
             display: flex;
             align-items: center;
             justify-content: space-between;
-            padding: 1.2rem 3rem;
-            background: rgba(17, 24, 39, 0.8);
-            backdrop-filter: blur(12px);
-            border-bottom: 1px solid rgba(255,255,255,0.05);
-            position: sticky;
-            top: 0;
-            z-index: 100;
+            padding: 0.6rem 0.6rem 0.6rem 1.4rem;
+            background: rgba(12, 17, 28, 0.85);
+            backdrop-filter: blur(20px);
+            -webkit-backdrop-filter: blur(20px);
+            border: 1px solid rgba(255,255,255,0.08);
+            border-radius: 99px;
+            width: 100%;
+            max-width: 860px;
+            box-shadow: 0 8px 32px rgba(0,0,0,0.4);
+            pointer-events: all;
         }
         .navbar-brand {
-            font-size: 1.4rem;
+            font-size: 1.3rem;
             font-weight: 800;
             background: linear-gradient(90deg, #ff4b8b, #ff6b6b);
             -webkit-background-clip: text;
             -webkit-text-fill-color: transparent;
             text-decoration: none;
+            letter-spacing: -0.3px;
+        }
+        .navbar-links {
+            display: flex;
+            align-items: center;
+            gap: 0.25rem;
         }
         .navbar-links a {
             color: #9ca3af;
             text-decoration: none;
-            margin-left: 2rem;
-            font-size: 0.95rem;
+            padding: 0.45rem 0.9rem;
+            font-size: 0.9rem;
             font-weight: 500;
-            transition: color 0.2s;
+            border-radius: 8px;
+            transition: color 0.2s, background 0.2s;
         }
-        .navbar-links a:hover { color: #f3f4f6; }
+        .navbar-links a:hover { color: #f3f4f6; background: rgba(255,255,255,0.05); }
+        .navbar-links .nav-cta {
+            background: linear-gradient(135deg, #ff4b8b, #ff1e56);
+            color: #fff !important;
+            border: none;
+            margin-left: 0.25rem;
+            padding: 0.45rem 1.1rem;
+            border-radius: 99px;
+            box-shadow: 0 4px 14px rgba(255,75,139,0.35);
+        }
+        .navbar-links .nav-cta:hover {
+            background: linear-gradient(135deg, #ff1e56, #ff4b8b);
+            color: #fff !important;
+            transform: none;
+        }
+        /* Hamburger */
+        .nav-toggle {
+            display: none;
+            flex-direction: column;
+            gap: 5px;
+            cursor: pointer;
+            padding: 4px;
+            background: none;
+            border: none;
+        }
+        .nav-toggle span {
+            display: block;
+            width: 24px; height: 2px;
+            background: #9ca3af;
+            border-radius: 2px;
+            transition: transform 0.3s, opacity 0.3s;
+        }
+        .nav-toggle.open span:nth-child(1) { transform: translateY(7px) rotate(45deg); }
+        .nav-toggle.open span:nth-child(2) { opacity: 0; }
+        .nav-toggle.open span:nth-child(3) { transform: translateY(-7px) rotate(-45deg); }
 
         /* ── Hero ── */
         .hero {
-            min-height: 88vh;
-            display: flex;
+            min-height: 90vh;
+            display: grid;
+            grid-template-columns: 1fr 1fr;
             align-items: center;
-            justify-content: center;
-            text-align: center;
-            padding: 4rem 2rem;
+            gap: 3rem;
+            padding: 4rem 5vw 5rem;
+            max-width: 1280px;
+            margin: 0 auto;
             position: relative;
-            overflow: hidden;
         }
         .hero::before {
             content: '';
-            position: absolute;
-            width: 700px; height: 700px;
-            background: radial-gradient(circle, rgba(255,75,139,0.15) 0%, transparent 70%);
-            top: 50%; left: 50%;
-            transform: translate(-50%, -50%);
-            animation: pulse-glow 8s ease-in-out infinite alternate;
+            position: fixed;
+            inset: 0;
+            background:
+                radial-gradient(ellipse 800px 600px at 20% 40%, rgba(255,75,139,0.08) 0%, transparent 70%),
+                radial-gradient(ellipse 600px 500px at 80% 60%, rgba(99,102,241,0.07) 0%, transparent 70%);
+            pointer-events: none;
+            z-index: 0;
         }
-        @keyframes pulse-glow {
-            from { opacity: 0.5; transform: translate(-50%, -50%) scale(1); }
-            to   { opacity: 1;   transform: translate(-50%, -50%) scale(1.15); }
-        }
-        .hero-content { position: relative; z-index: 1; max-width: 780px; }
+        .hero-left { position: relative; z-index: 1; }
         .hero-badge {
-            display: inline-block;
-            background: rgba(255,75,139,0.15);
-            border: 1px solid rgba(255,75,139,0.4);
-            color: #ff6b8b;
-            padding: 0.4rem 1rem;
+            display: inline-flex;
+            align-items: center;
+            gap: 0.4rem;
+            background: rgba(255,75,139,0.1);
+            border: 1px solid rgba(255,75,139,0.35);
+            color: #ff8fab;
+            padding: 0.35rem 1rem;
             border-radius: 99px;
-            font-size: 0.85rem;
+            font-size: 0.8rem;
             font-weight: 600;
-            letter-spacing: 0.5px;
+            letter-spacing: 0.4px;
             margin-bottom: 1.5rem;
         }
+        .hero-badge::before {
+            content: '';
+            width: 7px; height: 7px;
+            background: #ff4b8b;
+            border-radius: 50%;
+            animation: blink 1.8s ease-in-out infinite;
+        }
+        @keyframes blink { 0%,100%{opacity:1} 50%{opacity:0.2} }
         .hero h1 {
-            font-size: clamp(2.5rem, 6vw, 4.5rem);
+            font-size: clamp(2.2rem, 5vw, 4rem);
             font-weight: 800;
             line-height: 1.1;
-            margin-bottom: 1.5rem;
-            background: linear-gradient(135deg, #ffffff 40%, #ff6b8b 100%);
+            letter-spacing: -1px;
+            margin-bottom: 1.4rem;
+            background: linear-gradient(150deg, #ffffff 35%, #ff8fab 75%, #ff4b8b 100%);
             -webkit-background-clip: text;
             -webkit-text-fill-color: transparent;
         }
-        .hero p {
-            font-size: 1.15rem;
-            color: #9ca3af;
-            line-height: 1.7;
+        .hero-desc {
+            font-size: 1.05rem;
+            color: #6b7280;
+            line-height: 1.75;
             margin-bottom: 2.5rem;
-            max-width: 580px;
-            margin-left: auto;
-            margin-right: auto;
+            max-width: 500px;
         }
-        .hero-cta {
-            display: inline-block;
+        .hero-actions {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 1rem;
+            align-items: center;
+        }
+        .btn-primary {
+            display: inline-flex;
+            align-items: center;
+            gap: 0.5rem;
             background: linear-gradient(135deg, #ff4b8b, #ff1e56);
             color: white;
             text-decoration: none;
-            padding: 0.9rem 2.4rem;
+            padding: 0.85rem 2rem;
             border-radius: 10px;
             font-weight: 700;
-            font-size: 1rem;
-            box-shadow: 0 8px 30px rgba(255,75,139,0.4);
-            transition: all 0.3s ease;
+            font-size: 0.95rem;
+            box-shadow: 0 6px 24px rgba(255,75,139,0.35);
+            transition: transform 0.25s ease, box-shadow 0.25s ease;
         }
-        .hero-cta:hover {
+        .btn-primary:hover {
             transform: translateY(-3px);
-            box-shadow: 0 12px 40px rgba(255,75,139,0.5);
+            box-shadow: 0 12px 36px rgba(255,75,139,0.5);
         }
-        .hero-cta-secondary {
-            display: inline-block;
+        .btn-secondary {
+            display: inline-flex;
+            align-items: center;
+            gap: 0.5rem;
             color: #9ca3af;
             text-decoration: none;
-            padding: 0.9rem 2rem;
+            padding: 0.85rem 1.6rem;
             border-radius: 10px;
             font-weight: 600;
-            font-size: 1rem;
-            margin-left: 1rem;
+            font-size: 0.95rem;
             border: 1px solid rgba(255,255,255,0.1);
-            transition: all 0.3s ease;
+            transition: color 0.25s, border-color 0.25s, background 0.25s;
         }
-        .hero-cta-secondary:hover { color: #f3f4f6; border-color: rgba(255,255,255,0.3); }
-
-        /* ── Features ── */
-        .features-section {
-            padding: 5rem 3rem;
-            max-width: 1100px;
-            margin: 0 auto;
-        }
-        .section-label {
-            text-align: center;
-            font-size: 0.85rem;
-            font-weight: 600;
-            color: #ff6b8b;
-            letter-spacing: 2px;
-            text-transform: uppercase;
-            margin-bottom: 1rem;
-        }
-        .section-title {
-            text-align: center;
-            font-size: 2rem;
-            font-weight: 700;
+        .btn-secondary:hover {
             color: #f3f4f6;
-            margin-bottom: 3rem;
+            border-color: rgba(255,255,255,0.25);
+            background: rgba(255,255,255,0.04);
         }
-        .features-grid {
-            display: grid;
-            grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
-            gap: 1.5rem;
+        /* Hero mockup card */
+        .hero-right {
+            position: relative;
+            z-index: 1;
+            display: flex;
+            justify-content: center;
         }
-        .feature-card {
+        .mockup-card {
             background: rgba(255,255,255,0.03);
-            border: 1px solid rgba(255,255,255,0.06);
-            border-radius: 16px;
-            padding: 2rem;
-            transition: all 0.3s ease;
+            border: 1px solid rgba(255,255,255,0.08);
+            border-radius: 20px;
+            padding: 1.75rem;
+            width: 100%;
+            max-width: 380px;
+            backdrop-filter: blur(10px);
+            box-shadow: 0 24px 80px rgba(0,0,0,0.5), 0 0 0 1px rgba(255,75,139,0.06);
+            animation: float 6s ease-in-out infinite;
         }
-        .feature-card:hover {
-            background: rgba(255,75,139,0.05);
-            border-color: rgba(255,75,139,0.25);
-            transform: translateY(-4px);
+        @keyframes float {
+            0%,100%{transform:translateY(0)} 50%{transform:translateY(-12px)}
         }
-        .feature-icon {
-            font-size: 2rem;
-            margin-bottom: 1rem;
+        .mockup-header {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            margin-bottom: 1.5rem;
         }
-        .feature-card h3 {
-            font-size: 1.05rem;
+        .mockup-title { font-size: 0.8rem; font-weight: 600; color: #6b7280; letter-spacing: 0.5px; }
+        .mockup-live {
+            display: inline-flex;
+            align-items: center;
+            gap: 0.35rem;
+            font-size: 0.72rem;
             font-weight: 600;
-            color: #f3f4f6;
-            margin-bottom: 0.6rem;
+            color: #34d399;
+            background: rgba(52,211,153,0.1);
+            border: 1px solid rgba(52,211,153,0.25);
+            padding: 0.2rem 0.6rem;
+            border-radius: 99px;
         }
-        .feature-card p {
-            font-size: 0.9rem;
-            color: #6b7280;
-            line-height: 1.6;
+        .mockup-live::before {
+            content:''; width:6px; height:6px;
+            background:#34d399; border-radius:50%;
+            animation: blink 1.5s infinite;
         }
+        .mockup-txn {
+            display: flex;
+            align-items: center;
+            gap: 0.9rem;
+            padding: 0.85rem 0;
+            border-bottom: 1px solid rgba(255,255,255,0.05);
+        }
+        .mockup-txn:last-child { border-bottom: none; padding-bottom: 0; }
+        .txn-icon {
+            width: 36px; height: 36px;
+            border-radius: 10px;
+            display: grid;
+            place-items: center;
+            font-size: 1rem;
+            flex-shrink: 0;
+        }
+        .txn-icon.safe  { background: rgba(52,211,153,0.12); }
+        .txn-icon.warn  { background: rgba(251,191,36,0.12); }
+        .txn-icon.fraud { background: rgba(239,68,68,0.12); }
+        .txn-info { flex: 1; }
+        .txn-name { font-size: 0.82rem; font-weight: 600; color: #e5e7eb; }
+        .txn-time { font-size: 0.72rem; color: #4b5563; margin-top: 2px; }
+        .txn-amount { font-size: 0.85rem; font-weight: 700; }
+        .txn-amount.safe  { color: #34d399; }
+        .txn-amount.warn  { color: #fbbf24; }
+        .txn-amount.fraud { color: #ef4444; }
+        .txn-badge {
+            font-size: 0.65rem;
+            font-weight: 700;
+            padding: 0.15rem 0.5rem;
+            border-radius: 99px;
+            letter-spacing: 0.3px;
+        }
+        .txn-badge.safe  { background:rgba(52,211,153,0.15); color:#34d399; }
+        .txn-badge.warn  { background:rgba(251,191,36,0.15); color:#fbbf24; }
+        .txn-badge.fraud { background:rgba(239,68,68,0.15); color:#ef4444; }
 
         /* ── Stats Bar ── */
         .stats-bar {
-            background: rgba(255,255,255,0.02);
-            border-top: 1px solid rgba(255,255,255,0.04);
-            border-bottom: 1px solid rgba(255,255,255,0.04);
-            padding: 2.5rem 3rem;
+            background: rgba(255,255,255,0.015);
+            border-top: 1px solid rgba(255,255,255,0.05);
+            border-bottom: 1px solid rgba(255,255,255,0.05);
+            padding: 2.5rem 5vw;
             display: flex;
             justify-content: center;
-            gap: 4rem;
+            gap: 0;
             flex-wrap: wrap;
         }
-        .stat-item { text-align: center; }
+        .stat-item {
+            text-align: center;
+            flex: 1;
+            min-width: 140px;
+            padding: 1rem 2rem;
+            position: relative;
+        }
+        .stat-item + .stat-item::before {
+            content: '';
+            position: absolute;
+            left: 0; top: 20%; bottom: 20%;
+            width: 1px;
+            background: rgba(255,255,255,0.07);
+        }
         .stat-value {
-            font-size: 2.2rem;
+            font-size: 2rem;
             font-weight: 800;
+            background: linear-gradient(90deg, #ff4b8b, #ff8c69);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            line-height: 1;
+            margin-bottom: 0.4rem;
+        }
+        .stat-label { font-size: 0.8rem; color: #4b5563; font-weight: 500; letter-spacing: 0.3px; }
+
+        /* ── Section shared ── */
+        .section-wrap {
+            padding: 5rem 5vw;
+            max-width: 1200px;
+            margin: 0 auto;
+        }
+        .section-eyebrow {
+            text-align: center;
+            font-size: 0.78rem;
+            font-weight: 700;
+            color: #ff6b8b;
+            letter-spacing: 2.5px;
+            text-transform: uppercase;
+            margin-bottom: 0.75rem;
+        }
+        .section-heading {
+            text-align: center;
+            font-size: clamp(1.6rem, 3vw, 2.2rem);
+            font-weight: 700;
+            color: #f3f4f6;
+            margin-bottom: 0.75rem;
+            letter-spacing: -0.4px;
+        }
+        .section-sub {
+            text-align: center;
+            font-size: 0.95rem;
+            color: #6b7280;
+            max-width: 520px;
+            margin: 0 auto 3rem;
+            line-height: 1.7;
+        }
+
+        /* ── Features ── */
+        .features-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(270px, 1fr));
+            gap: 1.25rem;
+        }
+        .feature-card {
+            background: rgba(255,255,255,0.025);
+            border: 1px solid rgba(255,255,255,0.06);
+            border-radius: 16px;
+            padding: 1.75rem;
+            transition: transform 0.3s ease, border-color 0.3s ease, background 0.3s ease, box-shadow 0.3s ease;
+            opacity: 0;
+            transform: translateY(20px);
+        }
+        .feature-card.visible {
+            opacity: 1;
+            transform: translateY(0);
+            transition: opacity 0.5s ease, transform 0.5s ease, border-color 0.3s ease, background 0.3s ease, box-shadow 0.3s ease;
+        }
+        .feature-card:hover {
+            background: rgba(255,75,139,0.05);
+            border-color: rgba(255,75,139,0.22);
+            transform: translateY(-5px);
+            box-shadow: 0 12px 40px rgba(255,75,139,0.1);
+        }
+        .feature-icon-wrap {
+            width: 46px; height: 46px;
+            border-radius: 12px;
+            background: rgba(255,75,139,0.1);
+            border: 1px solid rgba(255,75,139,0.2);
+            display: grid;
+            place-items: center;
+            font-size: 1.3rem;
+            margin-bottom: 1.1rem;
+        }
+        .feature-card h3 {
+            font-size: 0.98rem;
+            font-weight: 600;
+            color: #e5e7eb;
+            margin-bottom: 0.5rem;
+        }
+        .feature-card p {
+            font-size: 0.875rem;
+            color: #6b7280;
+            line-height: 1.65;
+        }
+
+        /* ── How It Works ── */
+        .steps-container {
+            background: rgba(255,255,255,0.015);
+            border-top: 1px solid rgba(255,255,255,0.05);
+            border-bottom: 1px solid rgba(255,255,255,0.05);
+        }
+        .steps-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+            gap: 2rem;
+            position: relative;
+        }
+        .steps-grid::before {
+            content: '';
+            position: absolute;
+            top: 28px; left: 10%; right: 10%;
+            height: 1px;
+            background: linear-gradient(90deg, transparent, rgba(255,75,139,0.3), transparent);
+        }
+        .step-card {
+            text-align: center;
+            padding: 1rem;
+            opacity: 0;
+            transform: translateY(16px);
+        }
+        .step-card.visible { opacity:1; transform:translateY(0); transition: opacity 0.6s ease, transform 0.6s ease; }
+        .step-number {
+            width: 52px; height: 52px;
+            border-radius: 50%;
+            background: linear-gradient(135deg, rgba(255,75,139,0.2), rgba(255,30,86,0.2));
+            border: 1px solid rgba(255,75,139,0.35);
+            color: #ff8fab;
+            font-size: 1.1rem;
+            font-weight: 800;
+            display: grid;
+            place-items: center;
+            margin: 0 auto 1.1rem;
+        }
+        .step-card h3 { font-size: 1rem; font-weight: 600; color: #e5e7eb; margin-bottom: 0.5rem; }
+        .step-card p  { font-size: 0.85rem; color: #6b7280; line-height: 1.6; }
+
+        /* ── Tech Stack ── */
+        .tech-strip {
+            display: flex;
+            flex-wrap: wrap;
+            justify-content: center;
+            gap: 0.75rem;
+            margin-top: 0.5rem;
+        }
+        .tech-badge {
+            display: inline-flex;
+            align-items: center;
+            gap: 0.5rem;
+            background: rgba(255,255,255,0.04);
+            border: 1px solid rgba(255,255,255,0.08);
+            color: #9ca3af;
+            padding: 0.45rem 1rem;
+            border-radius: 8px;
+            font-size: 0.82rem;
+            font-weight: 500;
+            transition: border-color 0.2s, color 0.2s, background 0.2s;
+        }
+        .tech-badge:hover { border-color: rgba(255,75,139,0.3); color: #e5e7eb; background: rgba(255,75,139,0.06); }
+
+        /* ── CTA Banner ── */
+        .cta-banner {
+            margin: 0 5vw 4rem;
+            border-radius: 20px;
+            background: linear-gradient(135deg, rgba(255,75,139,0.12) 0%, rgba(99,102,241,0.1) 100%);
+            border: 1px solid rgba(255,75,139,0.2);
+            padding: 3.5rem 2rem;
+            text-align: center;
+            position: relative;
+            overflow: hidden;
+        }
+        .cta-banner::before {
+            content:'';
+            position:absolute;
+            inset:0;
+            background: radial-gradient(ellipse 60% 80% at 50% 50%, rgba(255,75,139,0.08), transparent);
+        }
+        .cta-banner h2 {
+            font-size: clamp(1.4rem, 3vw, 2rem);
+            font-weight: 700;
+            color: #f3f4f6;
+            margin-bottom: 0.75rem;
+            position: relative;
+        }
+        .cta-banner p {
+            color: #6b7280;
+            font-size: 0.95rem;
+            margin-bottom: 1.75rem;
+            position: relative;
+        }
+        .cta-banner .btn-primary { position: relative; }
+
+        /* ── Footer ── */
+        footer {
+            background: rgba(255,255,255,0.01);
+            border-top: 1px solid rgba(255,255,255,0.05);
+            padding: 2.5rem 5vw;
+            display: flex;
+            flex-wrap: wrap;
+            align-items: center;
+            justify-content: space-between;
+            gap: 1rem;
+        }
+        .footer-brand {
+            font-size: 1rem;
+            font-weight: 700;
             background: linear-gradient(90deg, #ff4b8b, #ff6b6b);
             -webkit-background-clip: text;
             -webkit-text-fill-color: transparent;
         }
-        .stat-label { font-size: 0.85rem; color: #6b7280; margin-top: 0.3rem; }
-
-        /* ── Footer ── */
-        footer {
-            text-align: center;
-            padding: 2rem;
+        .footer-links { display: flex; gap: 1.5rem; flex-wrap: wrap; }
+        .footer-links a {
             color: #4b5563;
             font-size: 0.85rem;
-            border-top: 1px solid rgba(255,255,255,0.04);
+            text-decoration: none;
+            transition: color 0.2s;
+        }
+        .footer-links a:hover { color: #9ca3af; }
+        .footer-copy { font-size: 0.8rem; color: #374151; }
+
+        /* ── Scroll reveal ── */
+        .reveal { opacity: 0; transform: translateY(18px); }
+        .reveal.visible { opacity: 1; transform: translateY(0); transition: opacity 0.55s ease, transform 0.55s ease; }
+
+        /* ── Responsive ── */
+        @media (max-width: 900px) {
+            .navbar-outer { top: 0.75rem; padding: 0 1rem; }
+            .navbar { padding: 0.5rem 0.5rem 0.5rem 1.2rem; }
+            .navbar-links { display: none; position: absolute; top: calc(100% + 0.75rem); left: 0; right: 0;
+                flex-direction: column; align-items: stretch;
+                background: rgba(12,17,28,0.97); border: 1px solid rgba(255,255,255,0.08);
+                border-radius: 16px; padding: 0.75rem; gap: 0.25rem;
+                box-shadow: 0 12px 40px rgba(0,0,0,0.5); }
+            .navbar-links.open { display: flex; }
+            .navbar-links a { padding: 0.7rem 0.9rem; border-radius: 10px; }
+            .navbar-links .nav-cta { margin: 0.25rem 0 0; border-radius: 10px; text-align: center; justify-content: center; }
+            .nav-toggle { display: flex; }
+            .hero {
+                grid-template-columns: 1fr;
+                min-height: auto;
+                padding: 4rem 5vw 2rem;
+                text-align: center;
+            }
+            .hero-desc { max-width: 100%; margin-left: auto; margin-right: auto; }
+            .hero-actions { justify-content: center; }
+            .hero-right { display: none; }
+            .steps-grid::before { display: none; }
+        }
+        @media (max-width: 560px) {
+            .stats-bar { gap: 0; }
+            .stat-item { min-width: 50%; }
+            .stat-item + .stat-item::before { display: none; }
+            .cta-banner { margin: 0 1rem 3rem; padding: 2.5rem 1.5rem; }
         }
     </style>
 </head>
 
 <body>
 
+    <!-- ── Navbar ── -->
+    <div class="navbar-outer">
     <nav class="navbar">
         <a href="/" class="navbar-brand">⚡ UniPay FraudX</a>
-        <div class="navbar-links">
-            <a href="/dashboard">Dashboard</a>
-            <a href="https://github.com/Aabhaaatomar/UniPay-FraudX-" target="_blank">GitHub</a>
+        <button class="nav-toggle" id="navToggle" aria-label="Toggle navigation" aria-expanded="false">
+            <span></span><span></span><span></span>
+        </button>
+        <div class="navbar-links" id="navLinks">
+            <a href="/#features">Features</a>
+            <a href="/#how-it-works">How It Works</a>
+            <a href="/dashboard" class="nav-cta">📊 Dashboard</a>
+            <a href="https://github.com/Aabhaaatomar/UniPay-FraudX-" target="_blank" rel="noopener">GitHub →</a>
         </div>
     </nav>
+    </div>
 
+    <!-- ── Hero ── -->
     <section class="hero">
-        <div class="hero-content">
-            <div class="hero-badge">🛡️ AI-Powered Fraud Intelligence</div>
-            <h1>Protect Every Digital Transaction</h1>
-            <p>
-                UniPay FraudX uses a hybrid Random Forest + Rule Engine to detect fraudulent
-                and suspicious payments in real-time — designed for university and community ecosystems.
+        <div class="hero-left">
+            <div class="hero-badge">AI-Powered Fraud Intelligence</div>
+            <h1>Detect Fraud Before<br>It Costs You</h1>
+            <p class="hero-desc">
+                UniPay FraudX combines a 200-tree Random Forest with a 7-rule engine to flag
+                fraudulent and suspicious payments in real-time — built for university &amp; community ecosystems.
             </p>
-            <a href="/dashboard" class="hero-cta">📊 View Dashboard</a>
-            <a href="https://github.com/Aabhaaatomar/UniPay-FraudX-" class="hero-cta-secondary" target="_blank">View on GitHub →</a>
+            <div class="hero-actions">
+                <a href="/dashboard" class="btn-primary">📊 Open Dashboard</a>
+                <a href="https://github.com/Aabhaaatomar/UniPay-FraudX-" class="btn-secondary" target="_blank" rel="noopener">
+                    View on GitHub →
+                </a>
+            </div>
+        </div>
+        <div class="hero-right">
+            <div class="mockup-card">
+                <div class="mockup-header">
+                    <span class="mockup-title">LIVE TRANSACTIONS</span>
+                    <span class="mockup-live">Live</span>
+                </div>
+                <div class="mockup-txn">
+                    <div class="txn-icon safe">✅</div>
+                    <div class="txn-info">
+                        <div class="txn-name">Campus Canteen</div>
+                        <div class="txn-time">2 seconds ago · Low risk</div>
+                    </div>
+                    <div>
+                        <div class="txn-amount safe">₹120</div>
+                        <div class="txn-badge safe">NORMAL</div>
+                    </div>
+                </div>
+                <div class="mockup-txn">
+                    <div class="txn-icon warn">⚠️</div>
+                    <div class="txn-info">
+                        <div class="txn-name">Unknown Merchant</div>
+                        <div class="txn-time">8 seconds ago · 2:47 AM</div>
+                    </div>
+                    <div>
+                        <div class="txn-amount warn">₹8,400</div>
+                        <div class="txn-badge warn">SUSPICIOUS</div>
+                    </div>
+                </div>
+                <div class="mockup-txn">
+                    <div class="txn-icon fraud">🚨</div>
+                    <div class="txn-info">
+                        <div class="txn-name">Intl. Transfer</div>
+                        <div class="txn-time">21 seconds ago · 23 txn/hr</div>
+                    </div>
+                    <div>
+                        <div class="txn-amount fraud">₹95,000</div>
+                        <div class="txn-badge fraud">FRAUD</div>
+                    </div>
+                </div>
+            </div>
         </div>
     </section>
 
+    <!-- ── Stats Bar ── -->
     <div class="stats-bar">
         <div class="stat-item">
-            <div class="stat-value">1,000+</div>
+            <div class="stat-value" data-target="1000" data-suffix="+">0</div>
             <div class="stat-label">Transactions Analyzed</div>
         </div>
         <div class="stat-item">
-            <div class="stat-value">96%+</div>
+            <div class="stat-value" data-target="96" data-suffix="%+">0</div>
             <div class="stat-label">Detection Accuracy</div>
         </div>
         <div class="stat-item">
@@ -259,53 +662,168 @@
             <div class="stat-label">Inference Latency</div>
         </div>
         <div class="stat-item">
-            <div class="stat-value">7</div>
+            <div class="stat-value" data-target="7" data-suffix="">0</div>
             <div class="stat-label">Detection Rules</div>
         </div>
     </div>
 
-    <section class="features-section">
-        <div class="section-label">What We Detect</div>
-        <div class="section-title">Enterprise-Grade Detection Signals</div>
+    <!-- ── Features ── -->
+    <section class="section-wrap" id="features">
+        <p class="section-eyebrow reveal">Detection Signals</p>
+        <h2 class="section-heading reveal">Enterprise-Grade Fraud Detection</h2>
+        <p class="section-sub reveal">Every transaction is scored across multiple dimensions — from velocity to geography — for layered protection.</p>
 
         <div class="features-grid">
             <div class="feature-card">
-                <div class="feature-icon">🤖</div>
+                <div class="feature-icon-wrap">🤖</div>
                 <h3>Random Forest ML Engine</h3>
                 <p>200-estimator classifier trained on behavioral patterns — amount, velocity, time-of-day — with balanced class weights.</p>
             </div>
             <div class="feature-card">
-                <div class="feature-icon">⚡</div>
+                <div class="feature-icon-wrap">⚡</div>
                 <h3>Real-Time Rule Engine</h3>
                 <p>7 deterministic rules covering extreme amounts, high velocity, odd-hour windows, and unknown entity detection.</p>
             </div>
             <div class="feature-card">
-                <div class="feature-icon">📊</div>
+                <div class="feature-icon-wrap">📊</div>
                 <h3>Hybrid Risk Scoring</h3>
-                <p>Combines 60% heuristic rules + 40% ML probability into a single 0–100 risk score with LOW/MEDIUM/HIGH/CRITICAL labels.</p>
+                <p>Combines 60% heuristic rules + 40% ML probability into a single 0–100 risk score with LOW / MEDIUM / HIGH / CRITICAL labels.</p>
             </div>
             <div class="feature-card">
-                <div class="feature-icon">🌍</div>
+                <div class="feature-icon-wrap">🌍</div>
                 <h3>Geographic Intelligence</h3>
-                <p>Flags international transactions paired with elevated amounts as high-risk indicators.</p>
+                <p>Flags international transactions paired with elevated amounts as high-risk indicators automatically.</p>
             </div>
             <div class="feature-card">
-                <div class="feature-icon">🔍</div>
+                <div class="feature-icon-wrap">🔍</div>
                 <h3>Explainable Decisions</h3>
-                <p>Every prediction surfaces the specific rules triggered — no black-box outputs.</p>
+                <p>Every prediction surfaces the exact rules triggered — no black-box outputs, full audit trail.</p>
             </div>
             <div class="feature-card">
-                <div class="feature-icon">🛡️</div>
+                <div class="feature-icon-wrap">🛡️</div>
                 <h3>Academic Safe Design</h3>
-                <p>Built on synthetic, privacy-preserving datasets — ideal for educational demonstration without real financial data.</p>
+                <p>Built on synthetic, privacy-preserving datasets — ideal for educational demos without exposing real financial data.</p>
             </div>
         </div>
     </section>
 
+    <!-- ── How It Works ── -->
+    <div class="steps-container" id="how-it-works">
+        <section class="section-wrap">
+            <p class="section-eyebrow reveal">Process</p>
+            <h2 class="section-heading reveal">How It Works</h2>
+            <p class="section-sub reveal">Three stages from raw transaction to actionable risk label.</p>
+
+            <div class="steps-grid">
+                <div class="step-card">
+                    <div class="step-number">01</div>
+                    <h3>Ingest Transaction</h3>
+                    <p>Amount, hour, velocity, location and entity identity are extracted from the incoming payment event.</p>
+                </div>
+                <div class="step-card">
+                    <div class="step-number">02</div>
+                    <h3>Dual Analysis</h3>
+                    <p>The rule engine fires 7 deterministic checks while the Random Forest model assigns a fraud probability in parallel.</p>
+                </div>
+                <div class="step-card">
+                    <div class="step-number">03</div>
+                    <h3>Risk Score &amp; Label</h3>
+                    <p>Scores are blended into a 0–100 composite, mapped to NORMAL / SUSPICIOUS / FRAUD, and surfaced on the dashboard.</p>
+                </div>
+            </div>
+        </section>
+    </div>
+
+    <!-- ── Tech Stack ── -->
+    <section class="section-wrap" style="padding-bottom:2rem;">
+        <p class="section-eyebrow reveal">Built With</p>
+        <h2 class="section-heading reveal">Tech Stack</h2>
+        <div class="tech-strip reveal" style="margin-top:2rem;">
+            <span class="tech-badge">🐍 Python 3</span>
+            <span class="tech-badge">🌶️ Flask</span>
+            <span class="tech-badge">🌲 scikit-learn</span>
+            <span class="tech-badge">🐼 Pandas</span>
+            <span class="tech-badge">📈 NumPy</span>
+            <span class="tech-badge">📊 Chart.js</span>
+            <span class="tech-badge">🎨 Jinja2 Templates</span>
+            <span class="tech-badge">📦 openpyxl</span>
+        </div>
+    </section>
+
+    <!-- ── CTA Banner ── -->
+    <div class="cta-banner">
+        <h2>Ready to Explore the Dashboard?</h2>
+        <p>See live transaction data, risk breakdowns, and detection charts in one view.</p>
+        <a href="/dashboard" class="btn-primary">📊 Open Dashboard</a>
+    </div>
+
+    <!-- ── Footer ── -->
     <footer>
-        &copy; 2024 UniPay FraudX — Built by Aabha Tomar &amp; Contributors &nbsp;|&nbsp;
-        <a href="https://github.com/Aabhaaatomar/UniPay-FraudX-" style="color:#ff6b8b; text-decoration:none;">GitHub</a>
+        <span class="footer-brand">⚡ UniPay FraudX</span>
+        <div class="footer-links">
+            <a href="/#features">Features</a>
+            <a href="/#how-it-works">How It Works</a>
+            <a href="/dashboard">Dashboard</a>
+            <a href="https://github.com/Aabhaaatomar/UniPay-FraudX-" target="_blank" rel="noopener">GitHub</a>
+        </div>
+        <span class="footer-copy">&copy; 2024 UniPay FraudX — Aabha Tomar &amp; Contributors</span>
     </footer>
+
+    <script>
+        // ── Hamburger toggle
+        const toggle = document.getElementById('navToggle');
+        const links  = document.getElementById('navLinks');
+        toggle.addEventListener('click', () => {
+            const open = links.classList.toggle('open');
+            toggle.classList.toggle('open', open);
+            toggle.setAttribute('aria-expanded', open);
+        });
+        // Close menu on nav link click
+        links.querySelectorAll('a').forEach(a => a.addEventListener('click', () => {
+            links.classList.remove('open');
+            toggle.classList.remove('open');
+            toggle.setAttribute('aria-expanded', false);
+        }));
+
+        // ── Count-up animation
+        function countUp(el) {
+            const target = +el.dataset.target;
+            const suffix = el.dataset.suffix || '';
+            const duration = 1400;
+            const step = target / (duration / 16);
+            let current = 0;
+            const timer = setInterval(() => {
+                current = Math.min(current + step, target);
+                el.textContent = (current >= 1000 ? Math.round(current).toLocaleString() : Math.round(current)) + suffix;
+                if (current >= target) clearInterval(timer);
+            }, 16);
+        }
+        const statsObserver = new IntersectionObserver((entries) => {
+            entries.forEach(e => {
+                if (e.isIntersecting && e.target.dataset.target) {
+                    countUp(e.target);
+                    statsObserver.unobserve(e.target);
+                }
+            });
+        }, { threshold: 0.5 });
+        document.querySelectorAll('.stat-value[data-target]').forEach(el => statsObserver.observe(el));
+
+        // ── Scroll-reveal (feature cards, step cards, .reveal elements)
+        const revealObserver = new IntersectionObserver((entries) => {
+            entries.forEach((e, i) => {
+                if (e.isIntersecting) {
+                    const delay = e.target.dataset.delay || 0;
+                    setTimeout(() => e.target.classList.add('visible'), delay);
+                    revealObserver.unobserve(e.target);
+                }
+            });
+        }, { threshold: 0.12 });
+
+        document.querySelectorAll('.feature-card, .step-card, .reveal').forEach((el, i) => {
+            el.dataset.delay = (i % 3) * 80;
+            revealObserver.observe(el);
+        });
+    </script>
 
 </body>
 </html>
