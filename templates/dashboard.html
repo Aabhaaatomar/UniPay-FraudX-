@@ -1,0 +1,48 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <title>UniPay FraudX Dashboard</title>
+    <link rel="stylesheet" href="/static/style.css">
+</head>
+
+<body>
+
+    <h1>📊 UniPay FraudX Dashboard</h1>
+    <p>Transaction Monitoring & Fraud Awareness System</p>
+
+    <div class="nav">
+        <a href="/">🏠 Home</a>
+        <a href="/dashboard">📊 Dashboard</a>
+    </div>
+
+    <h2>Recent Transactions (Dataset View)</h2>
+
+    <table>
+        <tr>
+            <th>ID</th>
+            <th>Amount (₹)</th>
+            <th>Hour</th>
+            <th>Txn Count</th>
+            <th>Status</th>
+        </tr>
+
+        {% for t in transactions %}
+        <tr>
+            <td>{{ t.transaction_id }}</td>
+            <td>{{ t.amount }}</td>
+            <td>{{ t.hour }}</td>
+            <td>{{ t.txn_count_1hr }}</td>
+
+            {% if t.label == "Suspicious" %}
+            <td class="suspicious">{{ t.label }}</td>
+            {% else %}
+            <td class="normal">{{ t.label }}</td>
+            {% endif %}
+        </tr>
+        {% endfor %}
+    </table>
+
+</body>
+
+</html>

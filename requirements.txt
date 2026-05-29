@@ -8,3 +8,8 @@ joblib
 audio-recorder-streamlit
 SpeechRecognition
 gTTS
+flask
+flask-jwt-extended
+flask-sqlalchemy
+flask-mail
+flask-socketio
