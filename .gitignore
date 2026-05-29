@@ -11,3 +11,4 @@ dataset/*.xlsx
 dataset/*.json
 !dataset/README.md
 !models/README.md
+venv/
