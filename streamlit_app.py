@@ -11,10 +11,20 @@ st.set_page_config(page_title="UniPay FraudX", layout="wide")
 nav_col1, nav_col2 = st.columns([6,2])
 
 with nav_col1:
-    page = st.radio("", ["Home", "Analysis", "Dashboard", "Prediction", "About"], horizontal=True)
+    page = st.radio(
+        "Navigation",
+        ["Home", "Analysis", "Dashboard", "Prediction", "About"],
+        horizontal=True,
+        label_visibility="collapsed"
+    )
 
 with nav_col2:
-    theme = st.radio("", ["🌙", "☀️"], horizontal=True)
+    theme = st.radio(
+        "Theme",
+        ["🌙", "☀️"],
+        horizontal=True,
+        label_visibility="collapsed"
+    )
 
 if theme == "🌙":
     theme = "Dark"
@@ -452,8 +462,40 @@ elif page == "Prediction":
         elif risk_score > 0:
             pred = 1
             reason = "Low risk score based on rules"
+        if risk_score > 70:
+            risk_level = "HIGH"
+            risk_color = "#ef4444"
+            risk_message = "High probability of fraudulent activity."
+
+        elif risk_score > 40:
+            risk_level = "MEDIUM"
+            risk_color = "#f59e0b"
+            risk_message = "Potentially suspicious transaction."
+
+        else:
+            risk_level = "LOW"
+            risk_color = "#22c55e"
+            risk_message = "Transaction appears safe."
         
-        
+        st.markdown(
+            f"""
+            <div style="
+                display:inline-block;
+                padding:8px 16px;
+                border-radius:999px;
+                background:{risk_color};
+                color:white;
+                font-weight:bold;
+                margin-bottom:10px;">
+                {risk_level} RISK
+            </div>
+            """,
+            unsafe_allow_html=True
+        )
+
+        st.progress(confidence / 100)
+        st.caption(f"{confidence:.2f}% confidence")
+
         if pred == 1:
             st.markdown(f"""
                         <div style="
@@ -471,8 +513,9 @@ elif page == "Prediction":
                         ⏰ Hour: {hour}<br>
                         📊 Confidence: {confidence:.2f}%<br><br>
                         📈 Risk Score: {risk_score}<br><br>
-                        ⚠️ Risk Level: {"High" if risk_score > 70 else "Moderate" if risk_score > 40 else "Low"}<br>
-                        📝 Reason: {reason}<br><br>
+                        ⚠️ Risk Level: {risk_level}<br>
+                        📝 Risk Insight: {risk_message}<br>
+                        📋 Reason: {reason}<br>
                         ⚠️ <b>Recommendation:</b><br>
                         • Verify transaction immediately<br>
                         • Enable OTP or 2FA authentication<br>
@@ -497,8 +540,9 @@ elif page == "Prediction":
         ⏰ Hour: {hour}<br>
         📊 Confidence: {confidence:.2f}%<br><br>
         📈 Risk Score: {risk_score}<br><br>
-        ⚠️ Risk Level: {"High" if risk_score > 70 else "Moderate" if risk_score > 40 else "Low"}<br>
-        📝 Reason: {reason}<br><br>
+        ⚠️ Risk Level: {risk_level}<br>
+        📝 Risk Insight: {risk_message}<br>
+        📋 Reason: {reason}<br><br>
 
         👍 <b>Recommendation:</b><br>
         • Transaction appears safe<br>
