@@ -1,22 +1,62 @@
 import pandas as pd
+import numpy as np
+from sklearn.model_selection import train_test_split
 from sklearn.ensemble import RandomForestClassifier
+from sklearn.preprocessing import StandardScaler
 import pickle
+import os
 
-# Load dataset
-df = pd.read_excel("data.xlsx")
+def train_fraud_model(data_path="data.xlsx"):
+    print("🚀 Initializing Enhanced Machine Learning Training...")
+    
+    # 1. Load Dataset
+    if not os.path.exists(data_path):
+        raise FileNotFoundError(f"Dataset not found at {data_path}. Please check the path.")
+    
+    df = pd.read_excel(data_path)
+    
+    # 2. Feature Engineering & Preprocessing
+    # Ensure correct features are selected based on the UniPay ecosystem
+    X = df[['amount', 'oldbalanceOrg', 'newbalanceOrig', 'oldbalanceDest', 'newbalanceDest']]
+    y = df['isFraud']
+    
+    # Split the data
+    X_train, X_test, y_train, y_test = train_test_split(X, y, test_size=0.2, random_state=42, stratify=y)
+    
+    # Scale features for numerical stability
+    scaler = StandardScaler()
+    X_train_scaled = scaler.fit_transform(X_train)
+    X_test_scaled = scaler.transform(X_test)
+    
+    # 3. Model Upgrade: Random Forest Classifier
+    # Tuned for fraud detection using class balancing
+    model = RandomForestClassifier(
+        n_estimators=100, 
+        max_depth=10, 
+        random_state=42, 
+        class_weight='balanced'
+    )
+    
+    model.fit(X_train_scaled, y_train)
+    
+    # Evaluate performance
+    train_acc = model.score(X_train_scaled, y_train)
+    test_acc = model.score(X_test_scaled, y_test)
+    print(f"✅ Training Accuracy: {train_acc:.2%}")
+    print(f"✅ Testing Accuracy: {test_acc:.2%}")
+    
+    # 4. Save Model and Scaler components together
+    os.makedirs('models', exist_ok=True)
+    artifacts = {
+        'model': model,
+        'scaler': scaler,
+        'features': list(X.columns)
+    }
+    
+    with open('models/fraud_model.pkl', 'wb') as f:
+        pickle.dump(artifacts, f)
+    
+    print("📦 Model artifacts successfully saved to 'models/fraud_model.pkl'")
 
-# Features (input)
-X = df[["amount", "txn_count_1hr", "hour"]]
-
-# Target (output)
-y = df["label"]   # 0 = normal, 1 = fraud
-
-# Train model
-model = RandomForestClassifier(n_estimators=100, random_state=42)
-model.fit(X, y)
-
-# Save model
-with open("fraud_model.pkl", "wb") as f:
-    pickle.dump(model, f)
-
-print("Model trained & saved successfully 😎")
+if __name__ == "__main__":
+    train_fraud_model()
